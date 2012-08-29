@@ -46,22 +46,22 @@ class LogRevisionsListener implements EventSubscriber
      * @var Doctrine\DBAL\Connection
      */
     private $conn;
-    
+
     /**
      * @var Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
-    
+
     /**
      * @var Doctrine\ORM\EntityManager
      */
     private $em;
-    
+
     /**
      * @var array
      */
     private $insertRevisionSQL = array();
-    
+
     /**
      * @var Doctrine\ORM\UnitOfWork
      */
@@ -127,10 +127,10 @@ class LogRevisionsListener implements EventSubscriber
             $this->saveRevisionEntityData($class, $entityData, 'DEL');
         }
     }
-    
+
     /**
      * get original entity data, including versioned field, if "version" constraint is used
-     * 
+     *
      * @param mixed $entity
      * @return array
      */
@@ -199,7 +199,9 @@ class LogRevisionsListener implements EventSubscriber
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                 $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
-                if ($entityData[$field] !== null) {
+                if ($entityData[$field] !== null  &&
+                    $this->uow->isInIdentityMap($entityData[$field])
+                ) {
                     $relatedId = $this->uow->getEntityIdentifier($entityData[$field]);
                 }
 
